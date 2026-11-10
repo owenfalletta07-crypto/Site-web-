@@ -40,6 +40,9 @@
     </div>
   </div>
 
+  <!-- Fondu au noir utilisé quand la lecture automatique reboucle -->
+  <div class="fade js-fade" aria-hidden="true"></div>
+
   <!-- Arrière-plan fixe : couleur de fond + mot géant « VOLT » -->
   <div class="backdrop" aria-hidden="true">
     <div class="backdrop__word js-backdrop-word">
@@ -59,7 +62,14 @@
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 1 4 14h7l-2 9 11-14h-7l3-8z" /></svg>
       <span>VOLT</span><em>ZERO</em>
     </a>
-    <a class="btn btn--ghost js-order" href="#final">Order</a>
+    <div class="nav__right">
+      <button class="autoplay js-autoplay" type="button" aria-pressed="false" aria-label="Lecture automatique du défilement">
+        <svg class="autoplay__ring" viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="18" r="16" /><circle class="js-autoplay-progress" cx="18" cy="18" r="16" /></svg>
+        <i class="autoplay__icon" aria-hidden="true"></i>
+        <span class="autoplay__label js-autoplay-label">Auto</span>
+      </button>
+      <a class="btn btn--ghost js-order" href="#final">Order</a>
+    </div>
   </header>
 
   <main id="top">

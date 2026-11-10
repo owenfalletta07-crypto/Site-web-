@@ -124,12 +124,12 @@ async function boot() {
   }
   await counted;
 
-  if (scene) initChoreography(scene);
-  openCurtain(scene);
+  const choreo = scene ? initChoreography(scene) : null;
+  openCurtain(scene, choreo);
 }
 
 /** Rideau qui s'ouvre puis intro du hero. */
-function openCurtain(scene) {
+function openCurtain(scene, choreo) {
   const tl = gsap.timeline({
     defaults: { ease: 'expo.inOut' },
     onComplete: () => {
@@ -138,6 +138,7 @@ function openCurtain(scene) {
       ScrollTrigger.refresh();
       lenis?.start();
       window.__ready = true;
+      if (choreo) initAutoplay(choreo);
     },
   });
   const d = reduced ? 0.01 : 1;
@@ -377,6 +378,142 @@ function initChoreography(scene) {
     label.textContent = 'Bientôt disponible ';
     setTimeout(() => (label.textContent = prev), 2200);
   });
+
+  return { getMaster: () => master, TOTAL, pickFlavor, getFlavor: () => current };
+}
+
+/* =====================================================================
+   Lecture automatique
+   ---------------------------------------------------------------------
+   La page défile seule à vitesse constante (≈ 1 écran toutes les 4 s).
+   - Toute interaction (molette, toucher, clavier) met en pause ; la
+     lecture reprend après quelques secondes d'inactivité.
+   - Pendant « Pick your flavor », les trois saveurs sont présentées.
+   - En bas de page : pause, fondu au noir, retour au début, et on repart.
+   - Désactivée par défaut si prefers-reduced-motion, ou avec ?auto=0.
+   ===================================================================== */
+function initAutoplay({ getMaster, TOTAL, pickFlavor, getFlavor }) {
+  const SPEED = 0.24;          // écrans par seconde
+  const RESUME_AFTER = 5000;   // ms d'inactivité avant reprise
+  const END_HOLD = 3500;       // ms de pause en bas avant de reboucler
+  // Moments (en écrans de timeline) où la démo change de saveur
+  const FLAVOR_CUES = [[9.65, 1], [10.0, 2], [10.35, 0]];
+
+  const btn = $('.js-autoplay');
+  const labelEl = $('.js-autoplay-label');
+  const ring = $('.js-autoplay-progress');
+  const fade = $('.js-fade');
+  const RING = 100.53; // périmètre du cercle (2π × 16)
+
+  const params = new URLSearchParams(location.search);
+  let enabled = !reduced && params.get('auto') !== '0';
+  let playing = false;     // défilement en cours
+  let y = 0;               // position visée (flottante, pour un mouvement régulier)
+  let resumeTimer = 0;
+  let endTimer = 0;
+  let looping = false;
+  let lastT = 0;
+  const fired = new Set();
+
+  const maxScroll = () => document.documentElement.scrollHeight - window.innerHeight;
+  const currentY = () => (lenis ? lenis.scroll : window.scrollY);
+  const scrollTo = (v) => {
+    if (lenis) lenis.scrollTo(v, { immediate: true, force: true });
+    else window.scrollTo(0, v);
+  };
+  // Temps de la timeline correspondant à une position de scroll
+  const timeAt = (v) => {
+    const st = getMaster()?.scrollTrigger;
+    if (!st) return 0;
+    return ((v - st.start) / (st.end - st.start)) * TOTAL;
+  };
+
+  function render() {
+    btn.setAttribute('aria-pressed', String(enabled));
+    btn.classList.toggle('is-waiting', enabled && !playing);
+    labelEl.textContent = enabled && !playing ? 'Pause' : 'Auto';
+  }
+
+  function play() {
+    clearTimeout(resumeTimer);
+    resumeTimer = 0;
+    if (!enabled || looping) return;
+    y = currentY();
+    lastT = 0;
+    // Les repères de saveur déjà dépassés sont considérés comme joués
+    const t = timeAt(y);
+    fired.clear();
+    FLAVOR_CUES.forEach(([ct], i) => { if (ct < t) fired.add(i); });
+    playing = true;
+    render();
+  }
+
+  function pause(resume = true) {
+    playing = false;
+    clearTimeout(resumeTimer);
+    clearTimeout(endTimer);
+    resumeTimer = resume && enabled ? setTimeout(play, RESUME_AFTER) : 0;
+    render();
+  }
+
+  // Boucle : retour au début derrière un fondu au noir
+  function loop() {
+    looping = true;
+    playing = false;
+    render();
+    gsap.timeline({ onComplete: () => { looping = false; play(); } })
+      .to(fade, { autoAlpha: 1, duration: 0.9, ease: 'power2.inOut' })
+      .add(() => { scrollTo(0); y = 0; if (getFlavor() !== 0) pickFlavor(0); })
+      .to(fade, { autoAlpha: 0, duration: 1.2, ease: 'power2.inOut' }, '+=1.4');
+  }
+
+  gsap.ticker.add((t) => {
+    // Anneau de progression de la page
+    const max = maxScroll();
+    ring.style.strokeDashoffset = String(RING * (1 - Math.min(1, currentY() / Math.max(1, max))));
+
+    if (!playing) { lastT = 0; return; }
+    const dt = lastT ? Math.min(t - lastT, 0.1) : 0;
+    lastT = t;
+    // Si la page a été déplacée autrement (barre de défilement, lien), on repart de là
+    if (Math.abs(currentY() - y) > 4) y = currentY();
+    y = Math.min(max, y + SPEED * window.innerHeight * dt);
+    scrollTo(y);
+
+    // Démo des saveurs
+    const tt = timeAt(y);
+    FLAVOR_CUES.forEach(([ct, f], i) => {
+      if (!fired.has(i) && tt >= ct) { fired.add(i); pickFlavor(f); }
+    });
+
+    if (y >= max - 1) {
+      playing = false;
+      render();
+      endTimer = setTimeout(loop, END_HOLD);
+    }
+  });
+
+  // Interaction de l'utilisateur → pause, puis reprise automatique
+  const userInput = () => { if (enabled && !looping) pause(true); };
+  window.addEventListener('wheel', userInput, { passive: true });
+  window.addEventListener('touchstart', (e) => { if (!btn.contains(e.target)) userInput(); }, { passive: true });
+  window.addEventListener('keydown', (e) => {
+    if (['ArrowDown', 'ArrowUp', 'PageDown', 'PageUp', 'Home', 'End', ' '].includes(e.key)) userInput();
+  });
+  // Liens de navigation et pastilles : pause le temps de l'action
+  $$('.js-order, a[href="#top"], .footer a, .swatch').forEach((el) => el.addEventListener('click', (e) => { if (e.isTrusted) userInput(); }));
+
+  btn.addEventListener('click', () => {
+    enabled = !enabled;
+    if (enabled) {
+      if (currentY() >= maxScroll() - 1) loop(); else play();
+    } else {
+      pause(false);
+    }
+  });
+
+  render();
+  if (enabled) setTimeout(play, 900);
 }
 
 boot();

@@ -138,6 +138,39 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 .nav__logo svg { width: 18px; height: 18px; fill: var(--accent); }
 .nav__logo em { font-style: normal; font-family: var(--f-body); font-size: 11px; font-weight: 600; letter-spacing: 0.25em; color: var(--muted); margin-left: 4px; }
 
+.nav__right { display: flex; align-items: center; gap: 10px; }
+
+/* --- Bouton de lecture automatique (anneau = progression de la page) */
+.autoplay {
+  position: relative;
+  display: inline-flex; align-items: center; gap: 8px;
+  height: 40px; padding: 0 14px 0 4px;
+  border-radius: 999px;
+  font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--muted);
+  transition: color 0.3s var(--ease);
+}
+.autoplay:hover, .autoplay[aria-pressed='true'] { color: var(--fg); }
+.autoplay__ring { width: 32px; height: 32px; transform: rotate(-90deg); flex: none; }
+.autoplay__ring circle { fill: none; stroke: var(--line); stroke-width: 1.5; }
+.autoplay__ring circle + circle { stroke: var(--accent); stroke-dasharray: 100.53; stroke-dashoffset: 100.53; stroke-linecap: round; }
+/* icône lecture / pause centrée dans l'anneau */
+.autoplay__icon {
+  position: absolute; left: 4px; top: 4px; width: 32px; height: 32px;
+  display: grid; place-items: center;
+}
+.autoplay__icon::before {
+  content: ''; width: 0; height: 0; margin-left: 2px;
+  border-left: 8px solid currentColor; border-top: 5px solid transparent; border-bottom: 5px solid transparent;
+}
+.autoplay[aria-pressed='true'] .autoplay__icon::before {
+  width: 8px; height: 10px; margin: 0; border: 0;
+  border-left: 3px solid currentColor; border-right: 3px solid currentColor;
+}
+.autoplay.is-waiting { color: var(--muted); }
+
+.fade { position: fixed; inset: 0; z-index: 80; background: var(--bg); opacity: 0; visibility: hidden; pointer-events: none; }
+
 .btn {
   display: inline-flex; align-items: center; gap: 10px;
   height: 40px; padding: 0 20px;
@@ -327,6 +360,8 @@ main { position: relative; z-index: 2; }
 @media (max-width: 767px), (orientation: portrait) and (max-width: 1024px) {
   :root { --nav-h: 60px; }
   .nav__logo em { display: none; }
+  .autoplay__label { display: none; }
+  .autoplay { padding: 0 4px; }
   .screen,
   .screen--left,
   .screen--right {
