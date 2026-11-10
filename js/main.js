@@ -385,7 +385,7 @@ function initChoreography(scene) {
 /* =====================================================================
    Lecture automatique
    ---------------------------------------------------------------------
-   La page défile seule à vitesse constante (≈ 1 écran toutes les 4 s).
+   La page défile seule à vitesse constante (≈ 1 écran toutes les 3 s).
    - Toute interaction (molette, toucher, clavier) met en pause ; la
      lecture reprend après quelques secondes d'inactivité.
    - Pendant « Pick your flavor », les trois saveurs sont présentées.
@@ -393,7 +393,7 @@ function initChoreography(scene) {
    - Désactivée par défaut si prefers-reduced-motion, ou avec ?auto=0.
    ===================================================================== */
 function initAutoplay({ getMaster, TOTAL, pickFlavor, getFlavor }) {
-  const SPEED = 0.24;          // écrans par seconde
+  const SPEED = 0.32;          // écrans par seconde
   const RESUME_AFTER = 5000;   // ms d'inactivité avant reprise
   const END_HOLD = 3500;       // ms de pause en bas avant de reboucler
   // Moments (en écrans de timeline) où la démo change de saveur
