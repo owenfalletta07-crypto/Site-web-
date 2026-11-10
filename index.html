@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>VOLT ZERO — Stay charged.</title>
+  <meta name="description" content="VOLT ZERO — boisson énergisante zéro sucre, 160 mg de caféine. Marque fictive, page produit 3D pilotée par le scroll." />
+  <meta name="theme-color" content="#050505" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%23050505'/%3E%3Cpath d='M58 10 26 56h20l-8 34 36-50H52l10-30z' fill='%23E8FF2A'/%3E%3C/svg%3E" />
+
+  <!-- Polices -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="css/style.css" />
+
+  <!-- Three.js en modules ES (versions figées) -->
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+      }
+    }
+  </script>
+</head>
+
+<body class="is-loading">
+  <!-- ================================================================
+       1. Écran de chargement
+       ================================================================ -->
+  <div class="loader" aria-hidden="true">
+    <div class="loader__curtain loader__curtain--top"></div>
+    <div class="loader__curtain loader__curtain--bottom"></div>
+    <div class="loader__ui">
+      <div class="loader__brand">VOLT<span>⚡</span>ZERO</div>
+      <div class="loader__count"><span class="js-load-count">0</span><small>%</small></div>
+      <div class="loader__bar"><i class="js-load-bar"></i></div>
+    </div>
+  </div>
+
+  <!-- Arrière-plan fixe : couleur de fond + mot géant « VOLT » -->
+  <div class="backdrop" aria-hidden="true">
+    <div class="backdrop__word js-backdrop-word">
+      <span>V</span><span>O</span><span>L</span><span>T</span>
+    </div>
+  </div>
+
+  <!-- Unique scène 3D -->
+  <canvas class="webgl" aria-hidden="true"></canvas>
+
+  <!-- Grain de film -->
+  <div class="grain" aria-hidden="true"></div>
+
+  <!-- Navigation -->
+  <header class="nav">
+    <a class="nav__logo" href="#top" aria-label="VOLT ZERO, retour en haut">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 1 4 14h7l-2 9 11-14h-7l3-8z" /></svg>
+      <span>VOLT</span><em>ZERO</em>
+    </a>
+    <a class="btn btn--ghost js-order" href="#final">Order</a>
+  </header>
+
+  <main id="top">
+    <!-- Scène épinglée : chaque écran fait 100vh et est animé par le scroll -->
+    <div class="stage js-stage">
+
+      <!-- 2. Hero -->
+      <section class="screen screen--hero is-visible" data-screen="hero" aria-label="VOLT ZERO">
+        <h1 class="sr-only">VOLT ZERO — boisson énergisante zéro sucre</h1>
+        <p class="hero__tag js-hero-in">Energy drink <span>/</span> Zero sugar</p>
+        <div class="hero__meta js-hero-in">
+          <span>330 ml</span>
+          <span>Collection 01</span>
+        </div>
+        <div class="hero__scroll js-hero-in">
+          <span>Scroll</span>
+          <i></i>
+        </div>
+      </section>
+
+      <!-- 3. Zéro sucre -->
+      <section class="screen screen--left" data-screen="sugar">
+        <div class="copy">
+          <p class="eyebrow reveal"><span class="line"><span>01 — Sugar</span></span></p>
+          <div class="big-num reveal"><span class="line"><span><b class="js-count-sugar">0</b><small>g</small></span></span></div>
+          <h2 class="title reveal">
+            <span class="line"><span>Zero sugar.</span></span>
+            <span class="line"><span class="accent">Full charge.</span></span>
+          </h2>
+          <p class="body reveal"><span class="line"><span>Pas un gramme de sucre, pas de crash.</span></span><span class="line"><span>Juste une énergie nette, du premier au dernier sip.</span></span></p>
+        </div>
+      </section>
+
+      <!-- 4. Caféine -->
+      <section class="screen screen--left" data-screen="caffeine">
+        <div class="copy">
+          <p class="eyebrow reveal"><span class="line"><span>02 — Caffeine</span></span></p>
+          <div class="big-num reveal"><span class="line"><span><b class="js-count-160">0</b><small>mg</small></span></span></div>
+          <h2 class="title reveal">
+            <span class="line"><span>Milligrams</span></span>
+            <span class="line"><span class="accent">of focus.</span></span>
+          </h2>
+          <p class="body reveal"><span class="line"><span>Caféine de thé vert, taurine, vitamines B.</span></span><span class="line"><span>Dosée pour quatre heures de concentration.</span></span></p>
+        </div>
+      </section>
+
+      <!-- 5. Glacé -->
+      <section class="screen screen--right" data-screen="cold">
+        <div class="copy">
+          <p class="eyebrow reveal"><span class="line"><span>03 — Temperature</span></span></p>
+          <div class="big-num reveal"><span class="line"><span><b class="js-count-cold">0</b><small>°C</small></span></span></div>
+          <h2 class="title reveal">
+            <span class="line"><span>Served</span></span>
+            <span class="line"><span class="accent">ice cold.</span></span>
+          </h2>
+          <p class="body reveal"><span class="line"><span>Une gazéification fine pensée pour le froid.</span></span><span class="line"><span>Sortie du frigo, elle est à son meilleur.</span></span></p>
+        </div>
+      </section>
+
+      <!-- 6. Vue éclatée -->
+      <section class="screen screen--top" data-screen="anatomy">
+        <div class="copy copy--center">
+          <p class="eyebrow reveal"><span class="line"><span>04 — Anatomy</span></span></p>
+          <h2 class="title title--sm reveal"><span class="line"><span>Inside the can.</span></span></h2>
+        </div>
+        <div class="legend legend--left js-legend" data-part="top">
+          <i class="legend__dot"></i><i class="legend__line"></i>
+          <div class="legend__txt"><strong>Opercule</strong><span>Languette solidaire, aluminium recyclable.</span></div>
+        </div>
+        <div class="legend legend--right js-legend" data-part="body">
+          <i class="legend__dot"></i><i class="legend__line"></i>
+          <div class="legend__txt"><strong>Corps</strong><span>97 µm d’aluminium, impression 6 couleurs.</span></div>
+        </div>
+        <div class="legend legend--left js-legend" data-part="bottom">
+          <i class="legend__dot"></i><i class="legend__line"></i>
+          <div class="legend__txt"><strong>Fond</strong><span>Dôme renforcé, testé à 6,2 bar.</span></div>
+        </div>
+      </section>
+
+      <!-- 7. Saveurs -->
+      <section class="screen screen--left" data-screen="flavors">
+        <div class="copy">
+          <p class="eyebrow reveal"><span class="line"><span>05 — Flavors</span></span></p>
+          <h2 class="title reveal">
+            <span class="line"><span>Pick your</span></span>
+            <span class="line"><span class="accent">flavor.</span></span>
+          </h2>
+          <div class="swatches reveal" role="radiogroup" aria-label="Choisir une saveur">
+            <span class="line"><span>
+              <button class="swatch is-active" role="radio" aria-checked="true" data-flavor="0" style="--c:#E8FF2A"><i></i><b>Citron</b></button>
+              <button class="swatch" role="radio" aria-checked="false" data-flavor="1" style="--c:#FF2D55"><i></i><b>Berry</b></button>
+              <button class="swatch" role="radio" aria-checked="false" data-flavor="2" style="--c:#3DD6FF"><i></i><b>Glacier</b></button>
+            </span></span>
+          </div>
+          <p class="body reveal"><span class="line"><span class="js-flavor-name">Citron électrique</span></span><span class="line"><span class="js-flavor-note muted">Yuzu · lime · zeste</span></span></p>
+        </div>
+      </section>
+
+      <!-- 8. Comparatif -->
+      <section class="screen screen--right" data-screen="compare">
+        <div class="copy copy--wide">
+          <p class="eyebrow reveal"><span class="line"><span>06 — Compare</span></span></p>
+          <h2 class="title reveal"><span class="line"><span>Built <span class="accent">different.</span></span></span></h2>
+          <div class="table" role="table" aria-label="VOLT ZERO comparé à une boisson énergisante classique, pour 330 ml">
+            <div class="table__row table__head" role="row">
+              <span role="columnheader">Pour 330 ml</span>
+              <span role="columnheader" class="accent">VOLT</span>
+              <span role="columnheader">Classique</span>
+            </div>
+            <div class="table__row js-row" role="row">
+              <span role="rowheader">Sucre</span>
+              <span role="cell" class="accent"><b>0</b> g<i class="bar" style="--w:0.02"></i></span>
+              <span role="cell"><b>36</b> g<i class="bar bar--muted" style="--w:1"></i></span>
+            </div>
+            <div class="table__row js-row" role="row">
+              <span role="rowheader">Caféine</span>
+              <span role="cell" class="accent"><b>160</b> mg<i class="bar" style="--w:1"></i></span>
+              <span role="cell"><b>105</b> mg<i class="bar bar--muted" style="--w:0.66"></i></span>
+            </div>
+            <div class="table__row js-row" role="row">
+              <span role="rowheader">Calories</span>
+              <span role="cell" class="accent"><b>4</b> kcal<i class="bar" style="--w:0.03"></i></span>
+              <span role="cell"><b>148</b> kcal<i class="bar bar--muted" style="--w:1"></i></span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 9. Final -->
+      <section class="screen screen--final" data-screen="final" id="final">
+        <div class="final__top">
+          <h2 class="title title--xl reveal"><span class="line"><span>Stay <span class="accent">charged.</span></span></span></h2>
+        </div>
+        <div class="final__bottom reveal">
+          <span class="line"><span>
+            <a class="btn btn--big" href="#final">Order now <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7" /></svg></a>
+          </span></span>
+          <span class="line"><span class="muted small">Pack de 12 — 29 € · Livraison offerte</span></span>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- 10. Pied de page -->
+  <footer class="footer">
+    <div class="footer__inner">
+      <div class="footer__brand">VOLT<span>⚡</span>ZERO</div>
+      <nav class="footer__links" aria-label="Liens secondaires">
+        <a href="#top">Produit</a>
+        <a href="#final">Commander</a>
+        <a href="#top">Contact</a>
+      </nav>
+      <p class="footer__legal">© 2026 VOLT ZERO — marque fictive, créée pour une démo. Canette, étiquette et visuels générés par code.</p>
+    </div>
+  </footer>
+
+  <!-- GSAP + ScrollTrigger + Lenis (UMD) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script src="https://unpkg.com/lenis@1.1.13/dist/lenis.min.js"></script>
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
